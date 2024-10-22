@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 import csv
 import pprint
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 load_dotenv()
 
@@ -10,7 +12,15 @@ TOKEN = os.getenv("TOKEN")
 DEFAULT_API = os.getenv("DEFAULT_API")
 GET_HUB = os.getenv("GET_HUB")
 GET_MEMBER = os.getenv("GET_MEMBER")
+SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 
+SCOPE = ['https://spreadsheets.google.com/feeds',
+        'https://www.googleapis.com/auth/drive']
+
+GOOGLE_AUTH_JSON = os.getenv('GOOGLE_AUTH_JSON')
+
+creds = ServiceAccountCredentials.from_json_keyfile_name(GOOGLE_AUTH_JSON, SCOPE)
+client = gspread.authorize(creds)
 
 def get_all_Hub():
     get_all_hub_url = DEFAULT_API + GET_HUB
@@ -55,12 +65,12 @@ def get_member_from_Hub_id():
     for member in res:
         member_list.append([member['name'], member['email']])
 
-    # CSV ファイルに書き込む
-    with open('main.csv', 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(member_list)
+    spreadsheet = client.open_by_key(SPREADSHEET_ID)
+    worksheet = spreadsheet.worksheet('test')
+    worksheet.clear() 
+    worksheet.append_rows(member_list)
 
-    print("メンバー情報が main.csv に書き込まれました。")
+    print("メンバー情報がスプレッドシートに書き込まれました。")
     return member_list
 
 get_member_from_Hub_id()
