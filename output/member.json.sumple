@@ -1,0 +1,14 @@
+[
+    {
+        "profile_id": "id",
+        "status": "joined",
+        "name": "Ikeda Yuma",
+        "email": "uyuyu.0301@gmail.com",
+        "description": "",
+        "extra": {},
+        "image": "https://lh3.googleusercontent.com/a/ACg8ocJ-fMXlk0DT7K7ABGbbTqd2pHcqKjXy-oADh4TNzWzIhlZZ9gI=s96-c",
+        "created_at": "2024-10-19 18:46:42",
+        "updated_at": "2024-10-19 18:46:42",
+        "expire_at": "None"
+    },
+]

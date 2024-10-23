@@ -66,17 +66,16 @@ def get_member_from_Hub_id():
     res = request.json()
     print(res)
 
+    with open('output/member.json', "w", encoding="utf-8") as member_json:
+        json.dump(res, member_json, indent=4, ensure_ascii=False)
+
     member_list = []
     for member in res:
         member_list.append([member['name'], member['email']])
 
-    with open('output/member.csv', 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(member_list)
-
     spreadsheet = client.open_by_key(SPREADSHEET_ID)
     worksheet = spreadsheet.worksheet('test')
-    worksheet.clear() 
+    worksheet.clear()
     worksheet.append_rows(member_list)
 
     print("OK")
