@@ -2,7 +2,7 @@ import requests
 import os
 from dotenv import load_dotenv
 import csv
-import pprint
+import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -30,11 +30,15 @@ def get_all_Hub():
     }
     request = requests.get(get_all_hub_url, headers=headers)
     res = request.json()
+    with open('output/all_hub.json', "w", encoding="utf-8") as all_hub_json:
+        json.dump(res, all_hub_json, indent=4, ensure_ascii=False)
 
     Hub_id = []
 
     for hub in res:
         Hub_id.append([hub['name'], hub['id']])
+    with open('output/hub_id.json', "w", encoding="utf-8") as hub_id_json:
+        json.dump(Hub_id, hub_id_json, indent=4, ensure_ascii=False)
 
     return Hub_id
 
@@ -60,17 +64,22 @@ def get_member_from_Hub_id():
     }
     request = requests.get(get_member_url, headers=headers)
     res = request.json()
+    print(res)
 
     member_list = []
     for member in res:
         member_list.append([member['name'], member['email']])
+
+    with open('output/member.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(member_list)
 
     spreadsheet = client.open_by_key(SPREADSHEET_ID)
     worksheet = spreadsheet.worksheet('test')
     worksheet.clear() 
     worksheet.append_rows(member_list)
 
-    print("メンバー情報がスプレッドシートに書き込まれました。")
+    print("OK")
     return member_list
 
 get_member_from_Hub_id()
