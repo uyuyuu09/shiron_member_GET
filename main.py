@@ -54,9 +54,13 @@ def get_member_from_Hub_id():
     headers = {
         'Authorization': 'Bearer ' + TOKEN
     }
-    request = requests.get(get_member_url, headers=headers)
-    res = request.json()
-    print(res)
+    try:
+        request = requests.get(get_member_url, headers=headers)
+        res = request.json()
+        print(res)
+    except:
+        print("request error")
+        return
 
     member_list = []
     for member in res:
@@ -64,12 +68,16 @@ def get_member_from_Hub_id():
 
     with open(f"output/{hubs[choice - 1][0]}.json", "w", encoding="utf-8") as member_json:
         json.dump(res, member_json, indent=4, ensure_ascii=False)
-
+    
+    # 放送部公式hub用処理, GSSに書き込み
     if choice == 4:
         spreadsheet = client.open_by_key(SPREADSHEET_ID)
         worksheet = spreadsheet.worksheet('test')
         worksheet.clear()
-        worksheet.append_rows(member_list)
+
+        for member in member_list:
+            if member[1] != "uyuyu.0301@gmail.com":
+                worksheet.append_row([member[0][:4], member[0][4:], member[1]])
 
     print("OK")
     return member_list
