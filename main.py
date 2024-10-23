@@ -1,18 +1,9 @@
 import requests
 import os
-from dotenv import load_dotenv
-import csv
 import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-
-load_dotenv()
-
-TOKEN = os.getenv("TOKEN")
-DEFAULT_API = os.getenv("DEFAULT_API")
-GET_HUB = os.getenv("GET_HUB")
-GET_MEMBER = os.getenv("GET_MEMBER")
-SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
+from env.env import TOKEN, DEFAULT_API, GET_HUB, GET_MEMBER, SPREADSHEET_ID, GOOGLE_AUTH_JSON
 
 SCOPE = ['https://spreadsheets.google.com/feeds',
         'https://www.googleapis.com/auth/drive']
@@ -44,11 +35,12 @@ def get_all_Hub():
 
 def get_member_from_Hub_id():
     hubs = get_all_Hub()
+    for i, hub in enumerate(hubs):
+        print(f"{i + 1}. {hub[0]} ({hub[1]})")
 
     while True:
         try:
-            # choice = int(input("どのハブのメンバーを取得しますか？ (番号を入力): "))
-            choice = 4
+            choice = int(input("どのハブのメンバーを取得しますか？ (番号を入力): "))
             if 1 <= choice <= len(hubs):
                 selected_hub_id = hubs[choice - 1][1]
                 break
@@ -66,17 +58,18 @@ def get_member_from_Hub_id():
     res = request.json()
     print(res)
 
-    with open('output/member.json', "w", encoding="utf-8") as member_json:
-        json.dump(res, member_json, indent=4, ensure_ascii=False)
-
     member_list = []
     for member in res:
         member_list.append([member['name'], member['email']])
 
-    spreadsheet = client.open_by_key(SPREADSHEET_ID)
-    worksheet = spreadsheet.worksheet('test')
-    worksheet.clear()
-    worksheet.append_rows(member_list)
+    with open(f"output/{hubs[choice - 1][0]}.json", "w", encoding="utf-8") as member_json:
+        json.dump(res, member_json, indent=4, ensure_ascii=False)
+
+    if choice == 4:
+        spreadsheet = client.open_by_key(SPREADSHEET_ID)
+        worksheet = spreadsheet.worksheet('test')
+        worksheet.clear()
+        worksheet.append_rows(member_list)
 
     print("OK")
     return member_list
